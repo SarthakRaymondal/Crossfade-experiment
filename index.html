@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossfade experiment</title>
+    <style>
+        audio {
+            width: 400px;
+        }
+        body {
+            font-family: Sans-serif;
+            margin: 0;
+        }
+        .bg_audio {
+            position: absolute;
+            z-index: -2;
+        }
+        button {
+            margin-left: 5px;
+        }
+        #bg_audio {
+            margin-left: 3px;
+        }
+    </style>
+</head>
+
+<body onload="fetch();">
+    <!--Made by Sarthak-->
+<h1 style="text-align: center;">CrossFade Tester</h1>
+
+<div id="bg_audio">
+Crossfade means transitioning from one song to another by lowering the volume of the current track and increasing the volume of the upcomong track.As crossfade starts,the next track also starts but volume stays at 0 and slowly becomes 100 while the current track's volume becomes 0.Also note that will transitioning please don't mess with the tracks or that can lead to some issue!<br><br>
+Select audio 1:<input type="file" oninput="cft1(this.files[0],this.files[0].name)" accept="audio/*"><br><br>
+Select audio 2:<input type="file" oninput="cft2(this.files[0],this.files[0].name)" accept="audio/*"><br>
+<br>
+<img height="100" width="100" src="" id="img1"><br>
+<a id="txt1">No name</a><br>
+<audio controls id="a"  onplay="start1()" >
+        <source src=""  type="audio/mpeg" id="c">
+      Your browser does not support the audio element.
+      </audio>
+<br><br>
+<img height="100" width="100" src="" id="img2"><br>
+<a id="txt2">No name</a><br>
+      <audio controls id="b" >
+        <source src="" type="audio/mpeg" id="d">
+      Your browser does not support the audio element.
+      </audio><br>
+      <br>Track 1 volume:<progress value="1" max="1" min="0" id="e"></progress>
+      <br>Track 2 volume:<progress value="0" max="1" min="0" id="f"></progress><br>
+      <a>Current crossfade:<span id="cct">4</span>s</a><br>
+      <div id="cm">Crossfade seconds:<button onclick="cc1()">4s</button><button onclick="cc2()">5s</button><button onclick="cc3()">12s</button><button onclick="cc4()">Custom</button></div>
+     </div>
+     <br><br>
+     <script>
+        //Thanks to AI Gemini for helping in track info retriving
+        var cat = 4;
+        var ics = 50; 
+        const adu1 = document.getElementsByTagName("audio")[0]
+        const adu2 = document.getElementsByTagName("audio")[1]
+        var aud1 = document.getElementById("a")
+        var aud2 = document.getElementById("b")
+        if ('mediaSession' in navigator) {
+      // Set initial metadata
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'Unknown Title',
+        artist: 'Unknown Artist',
+        album: 'Unknown Album',
+        artwork: [{ src: 'your-thumbnail.jpg' }]
+      });
+      aud1.addEventListener('loadstart', () => {
+        document.getElementById("img1").src = navigator.mediaSession.metadata.artwork[0].src
+        document.getElementById("txt1").innerHTML += "<br>Artist name: " + navigator.mediaSession.metadata.artist + "<br>Album name: " + navigator.mediaSession.metadata.album   
+      });
+      aud2.addEventListener('loadstart', () => {
+        document.getElementById("img2").src = navigator.mediaSession.metadata.artwork[0].src
+        document.getElementById("txt2").innerHTML += "<br>Artist name: " + navigator.mediaSession.metadata.artist + "<br>Album name: " + navigator.mediaSession.metadata.album  
+      });
+    }
+        aud1.volume = 1
+        var ad1 = 0;
+        var ad2 = 0;
+        aud2.volume = 0;
+        function cc1() {
+            cat = 4
+            ics = 50
+            document.getElementById("cct").innerHTML = cat
+        }
+        function cc2() {
+            cat = 5
+            ics = 55
+            document.getElementById("cct").innerHTML = cat
+        }
+        function cc3() {
+            cat = 12
+            ics = 120
+            document.getElementById("cct").innerHTML = cat
+        }
+        function cc4() {
+            cat  = parseFloat(prompt("Enter crossfade second"))
+            ics = parseFloat(prompt("Enter volume increase second(1s = 1000ms)"))
+            document.getElementById("cct").innerHTML = cat
+        }
+        function cft1(a,b) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+            const src1 = event.target.result;
+            console.log("File SRC:", src1);
+            document.getElementById("a").src = src1
+            document.getElementById("txt1").innerHTML = b
+            }
+            reader.readAsDataURL(a);
+            
+        }
+        function cft2(a,b) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+            const src1 = event.target.result;
+            console.log("File SRC:", src1);
+            document.getElementById("b").src = src1
+            document.getElementById("txt2").innerHTML = b
+            }
+            reader.readAsDataURL(a);
+        }
+        function fetch() {
+            ad1 = aud1.duration
+            ad2 = aud2.duration
+        }
+        function start1() {
+            aud2.pause()
+            aud2.currentTime = 0;
+            aud1.volume = 1;
+            aud2.volume = 0;
+
+            ad1 = aud1.duration
+            ad2 = aud2.duration
+            vcs()
+
+            setTimeout(check1,0)
+        }
+        function vcs() {
+                document.getElementById("e").value = aud1.volume
+                document.getElementById("f").value = aud2.volume
+            setTimeout(vcs,0)
+        }
+        function check1() {
+            console.log(aud1.currentTime)
+            if (aud1.currentTime > ad1-cat )  {
+                                document.getElementById("cm").style.display = "none"
+                console.log("Crossfade started")
+                start2()
+            }
+
+            else {
+                setTimeout(check1,0)
+            }
+        }
+        function start2() {
+            check2();
+            aud2.play()
+        }
+    function sd() {
+        aud1.volume=0;aud2.volume=1;document.getElementById("cm").style.display = "block"
+    }
+    function check2() {
+        if (aud2.volume > 0.98) {
+            setInterval(sd(),3000)
+        }
+        else {
+            aud1.volume -=0.01
+
+                
+aud2.volume +=0.01
+console.log(aud1.volume)
+console.log(aud2.volume)
+setTimeout(check2,ics)
+        }
+        /*if (aud2.volume > 0.99) {
+            setTimeout(function(){
+                if(adu1.id === "a") {
+                                    adu1.id = "b"
+                }
+                else {
+                                    adu1.id = "a"
+                }
+                if(adu2.id === "a") {
+                                    adu2.id = "b"
+                }
+                else {
+                                    adu2.id = "a"
+                }
+        start1()
+            },0)
+       }   */
+
+    }
+      </script>
+</body>
+</html>
